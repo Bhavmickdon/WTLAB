@@ -1,83 +1,188 @@
 <?php
-    if(isset($_FILES['file']))
-    {       
-        $errors= array();       
-        $file_name = $_FILES['file']['name'];  
-        $file_size = $_FILES['file']['size'];  
-        $file_tmp = $_FILES['file']['tmp_name'];   
-        $file_type = $_FILES['file']['type']; 
-    
-        //The explode() function breaks a string into an array.   
-        $temp=explode('.',$_FILES['file']['name']); 
-          
-        $file_ext=end($temp);          
-        $expensions= array("pdf"); 
-          
-        if(in_array($file_ext,$expensions)=== false)
-        {          
-            $errors[]="extension not allowed, please choose a pdf File."; 
-        }              
-        if(empty($errors)==true) 
-        {         
-           move_uploaded_file($file_tmp,"Files/".$file_name);          
-           echo "Succesfully Uploaded!!!!"; 
-           echo "<ul> 
-                    <li>Temp-Location: ".$file_tmp."
-                      <li>Sent file: ".$file_name."     
-                      <li>File size: ".$file_size."             
-                      <li>File type:".$file_type."          
-                  </ul>"; 
-        }
-        else
-        {  
-            print_r($errors);
-        } 
+$servername="localhost";
+$username="root";
+$password="";
+$conn=mysqli_connect($servername,$username,$password);
+if(!$conn)
+{
+    echo "connection not successful";
+}
+else{
+    echo "Ho gaya connect samjha?";
+}
+$sql_create_db = "CREATE DATABASE IF NOT EXISTS mickoo";
+$resdb= mysqli_query($conn,$sql_create_db);
+$conn->select_db("mickoo");
+$sql_create_table = "CREATE TABLE IF NOT EXISTS Logininf(
+    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    img_path VARCHAR(255) DEFAULT NULL
+)";
+$restab= mysqli_query($conn,$sql_create_table);
+/*
+if ($_SERVER['REQUEST_METHOD']=="POST"){
+    $email=$_POST['emailhai'];
+    $pass=$_POST['passhai'];
+    $imageData = file_get_contents($_FILES['imagekisub']['tmp_name']);
+    $sql = "INSERT INTO Logininf (email,password,img_data) VALUES ('$email', '$pass','$imageData')";
+    $result=mysqli_query($conn,$sql);
+    if($result===true)
+    {   
+    echo '<script>';
+    echo 'alert("Your email ' . $email . ' and password have been submitted successfully.");';
+    echo '</script>';
     }
+    else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+    $sql_calrow= "SELECT * FROM Logininf";
+    $resnumofrows= mysqli_query($conn,$sql_calrow);
+    $numofrowsinsql=mysqli_num_rows($resnumofrows);
+    echo "<br>The number of rows in the sql table are:" . $numofrowsinsql;
+    if($numofrowsinsql>0)
+    {
+       
+    //$fetchnoofrows= mysqli_fetch_assoc($resnumofrows);
+    //echo "<br>The rows are:";
+    //print_r($fetchnoofrows);
+    //echo var_dump($fetchnoofrows);
+    //echo "<br>";
+    //$fetchnoofrows= mysqli_fetch_assoc($resnumofrows);
+    //print_r($fetchnoofrows);
+    //echo var_dump($fetchnoofrows)
+    //echo "<br>";
+    
+    while($fetchnoofrows=mysqli_fetch_assoc($resnumofrows)){
+        //print_r($fetchnoofrows);
+        echo "<br>Hello " . $fetchnoofrows['email'] . ".Your password is " . $fetchnoofrows['password'] . "<br>";
+    }    
+    }
+
+    //$aff=mysqli_affected_rows($conn)
+    $conn->close();
+} */
+
+if ($_SERVER['REQUEST_METHOD']=="POST"){
+    $email=$_POST['emailhai'];
+    $pass=$_POST['passhai'];
+
+    // Check if a file is uploaded
+    if(isset($_FILES['imagekisub']) && $_FILES['imagekisub']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = 'uploads/'; // Directory where you want to store uploaded files
+        $uploadedFile = $uploadDir . basename($_FILES['imagekisub']['name']);
+
+        // Move the uploaded file to the specified directory
+        if(move_uploaded_file($_FILES['imagekisub']['tmp_name'], $uploadedFile)) {
+            $sql = "INSERT INTO Logininf (email,password,img_path) VALUES ('$email', '$pass','$uploadedFile')";
+            $result=mysqli_query($conn,$sql);
+
+            if($result===true) {
+                echo '<script>';
+                echo 'alert("Your email ' . $email . ' and password have been submitted successfully.");';
+                echo '</script>';
+            } else {
+                echo "Error: " . $sql . "<br>" . $conn->error;
+            }
+        } else {
+            echo "File upload failed!";
+        }
+    }
+    $sql_calrow= "SELECT * FROM Logininf";
+    $resnumofrows= mysqli_query($conn,$sql_calrow);
+    $numofrowsinsql=mysqli_num_rows($resnumofrows);
+    echo "<br>The number of rows in the SQL table are:" . $numofrowsinsql;
+
+    if($numofrowsinsql > 0) {
+        while($fetchnoofrows=mysqli_fetch_assoc($resnumofrows)){
+            echo "<br>Hello " . $fetchnoofrows['email'] . ". Your password is " . $fetchnoofrows['password'] . "<br>";
+        }    
+    }
+
+    $conn->close();
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exercise01-File Upload</title>
+
+    <title>Forms</title>
     <style>
-        body{
-            background: url(Files/OnePieceLogo.jpg);
-            background-repeat: no-repeat;
-            background-size: cover;
-            color: white;
-            font-weight: bolder;
-            font-size: larger;
+        .container{
+            position: absolute;
+
         }
-        input[type="submit"]{
-            margin: 20px 0 0 120px;
-            padding: 20px;
-            background-color: black;
-            color: white;
-            border-radius: 10px;
-            font-size: large;
-            border: 1px solid white;
-         }
-         input[type="file"]{
-            margin: 20px;
-            padding: 20px;
-            background-color: black;
-            color: white;
-            font-size: large;
-            border-radius: 10px;
-            border: 1px solid white;
-         }
+        .emaildiv{
+            position: relative;
+            top:13px;
+            left:2px;
+
+        }
+        .passworddiv{
+            position: relative;
+            top:20px;
+        }
+        .eminp{
+            position: relative;
+            left:20px;
+        }
+        .emaildaalo{
+            position: relative;
+            
+        }
+        .submitkro{
+            position: relative;
+            top:40px;
+        }
+        .submitkiya{
+            background-color: lightblue;
+        }
     </style>
 </head>
 <body>
-    <form action="/mickoo/documentinfo" method="post">
-        <div>
-            <input type="file" name="file">
-        </div>
-        <div>
-            <input type="submit">
-        </div>
+    <div class="container">
+    <form action="/mickoo/kaltohgaya.php" method="post" onsubmit="return validateForm()" enctype="multipart/form-data">
+    <div class="emaildiv">   
+    <label for="emailaddress" class="emaildaalo">Email:</label>
+    <input type="email" class="eminp" name="emailhai" id="emailkiidhaidost">
+    </div>
+    <div class="passworddiv">
+    <label for="password" class="passdaalo">Password:</label>
+    <input type="password" name="passhai" id="passkiidhaidost">
+    </div>
+    <div class="submitkro">
+        <input type="submit" class="submitkiya" >
+    </div>
+    <div class="imagekifiledo">
+        <input type="file" name="imagekisub">
+    </div>
     </form>
+    </div>
+
+    <script>
+        function validateEmail() {
+            var email = document.getElementById("emailkiidhaidost").value;
+            var emailPattern = /^[a-zA-Z0-9._-]+@(gmail|outlook)\.com$/;
+
+            if (!emailPattern.test(email)) {
+                alert("Please enter a valid Gmail or Outlook email address.");
+                return false; // Prevent form submission
+            }
+            return true; // Allow form submission
+        }
+        function validatePass() {
+            var password = document.getElementById("passkiidhaidost").value;
+            var passPattern = /^(?=.*[A-Z])(?=.*[@#$]).{7,10}$/;
+            if (!passPattern.test(password)) {
+                alert("Password must be between 7-10 characters and contain at least one uppercase letter and one symbol (@, #, $).");
+                return false; // Prevent form submission
+            }
+            return true; // Allow form submission          
+        }
+        function validateForm() {
+            return validateEmail() && validatePass();
+        }
+    </script>
 </body>
 </html>
