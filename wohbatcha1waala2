@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Registration</title>
+</head>
+<body>
+
+<form id="registrationForm">
+  <label for="name">Name (characters only):</label><br>
+  <input type="text" id="name" name="name" pattern="[A-Za-z]+" required><br><br>
+
+  <label for="email">Email:</label><br>
+  <input type="email" id="email" name="email" required><br><br>
+
+  <label for="phone">Phone (10 digits starting with 0, 6, or 9):</label><br>
+  <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required><br><br>
+
+  <label for="class">Class:</label><br>
+  <select id="class" name="class" required>
+    <option value="silver">Silver</option>
+    <option value="gold">Gold</option>
+    <option value="platinum">Platinum</option>
+  </select><br><br>
+
+  <input type="submit" value="Save">
+</form>
+
+<script>
+  document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value;
+
+    // Check if user with the same name already exists asynchronously
+    checkExistingUser(name, function(existingUser) {
+      if (existingUser) {
+        console.log('User with the same name already exists:');
+        console.log(existingUser);
+      } else {
+        const formData = new FormData(document.getElementById('registrationForm'));
+
+        // Sending data to the PHP script using AJAX/XMLHttpRequest
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'process_user.php', true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              console.log('Response from PHP script:');
+              console.log(xhr.responseText); // Response from the PHP script
+
+              // Handle the response from the PHP script and save to database
+              const response = JSON.parse(xhr.responseText);
+              if (response.success) {
+                console.log('User saved successfully.');
+              } else {
+                console.log('Error saving user:', response.error);
+              }
+            } else {
+              console.error('Error occurred.');
+            }
+          }
+        };
+        xhr.send(formData);
+      }
+    });
+  });
+
+  // Function to check if a user with the same name exists asynchronously
+  function checkExistingUser(name, callback) {
+    // Simulating asynchronous operation (e.g., fetching data from a server)
+    setTimeout(function() {
+      const existingUser = /* Fetch user details from the database using AJAX/HTTP request */ null;
+      callback(existingUser); // Callback with the retrieved user details (or null if not found)
+    }, 1000); // Simulating 1 second delay for asynchronous operation
+  }
+</script>
+
+</body>
+</html>
+
+
+
+<?php
+// Simulated processing of received data
+$name = $_POST['name'];
+$email = $_POST['email'];
+$phone = $_POST['phone'];
+$class = $_POST['class'];
+
+// Simulated database operation (replace this with your actual database code)
+// Here, you would connect to your database and insert the received data
+// This is a basic example; you should use prepared statements to prevent SQL injection
+
+// Sample connection code (replace these with your actual database connection details)
+$servername = "localhost";
+$username = "your_username";
+$password = "your_password";
+$dbname = "your_database";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// SQL to insert data into the database (sample code, adapt it to your table structure)
+$sql = "INSERT INTO users (name, email, phone, class) VALUES ('$name', '$email', '$phone', '$class')";
+
+if ($conn->query($sql) === TRUE) {
+    $response = array("success" => true, "error" => null);
+    echo json_encode($response);
+} else {
+    $response = array("success" => false, "error" => "Error: " . $sql . "<br>" . $conn->error);
+    echo json_encode($response);
+}
+
+$conn->close();
+?>
