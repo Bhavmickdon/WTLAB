@@ -1,0 +1,97 @@
+<?php
+// Establishing the connection to the MySQL database
+$servername = "localhost"; // Change this to your MySQL server hostname
+$username = "root"; // Change this to your MySQL username
+$password = ""; // Change this to your MySQL password
+$dbname = "mickoo"; // Change this to your MySQL database name
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// If the form is submitted via POST method
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $email = $_POST['emailhai'];
+    $password = $_POST['passhai'];
+
+    // SQL query to insert data into the 'donman' table
+    $sql = "INSERT INTO donman (email, password) VALUES ('$email', '$password')";
+
+    //if ($conn->query($sql) === TRUE) {
+    $result=mysqli_query($conn,$sql);
+    if($result===true)
+    {   
+    echo '<script>';
+    echo 'alert("Your email ' . $email . ' and password have been submitted successfully.");';
+    echo '</script>';
+    }
+//}
+    else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+}
+
+// Close the database connection
+$conn->close();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forms</title>
+    <style>
+        .container{
+            position: absolute;
+
+        }
+        .emaildiv{
+            position: relative;
+            top:13px;
+            left:2px;
+
+        }
+        .passworddiv{
+            position: relative;
+            top:20px;
+        }
+        .eminp{
+            position: relative;
+            left:20px;
+        }
+        .emaildaalo{
+            position: relative;
+            
+        }
+        .submitkro{
+            position: relative;
+            top:40px;
+        }
+        .submitkiya{
+            background-color: lightblue;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <form action="/mickoo/forming.php" method="post">
+    <div class="emaildiv">   
+    <label for="emailaddress" class="emaildaalo">Email:</label>
+    <input type="email" class="eminp" name="emailhai">
+    </div>
+    <div class="passworddiv">
+    <label for="password" class="passdaalo">Password:</label>
+    <input type="password" name="passhai">
+    </div>
+    <div class="submitkro">
+        <input type="submit" class="submitkiya" >
+    </div>
+    </form>
+    </div>
+</body>
+</html>
